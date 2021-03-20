@@ -26,7 +26,11 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
+  @app.route('/')
+  def index():
+    return jsonify({
+      'works': True
+    })
 
   '''
   @TODO: 
