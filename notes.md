@@ -1,3 +1,5 @@
+* psql -U postgres database_name > file.sql (password postgres)
+
 * No module flask found in env:
   - https://github.com/pallets/flask/issues/3327#issuecomment-519925269
 

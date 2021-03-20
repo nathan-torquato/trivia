@@ -13,7 +13,6 @@ def serialise_entity_list(entity_list):
   return serialised_list
 
 def create_app(test_config=None):
-  # create and configure the app
   app = Flask(__name__)
   setup_db(app)
   CORS(app)
@@ -24,9 +23,13 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
-  def get_serialised_categories():
+  def get_categories_map():
     categories = Category.query.all()
-    return serialise_entity_list(categories)
+    serialised_list = serialise_entity_list(categories)
+
+    return {
+      category['id']: category['type'] for category in serialised_list
+    }
   
   @app.route('/categories')
   def get_categories():
@@ -34,22 +37,9 @@ def create_app(test_config=None):
     
     return jsonify({
       'success': True,
-      'categories': get_serialised_categories(),
+      'categories': get_categories_map(),
     })
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests for questions, 
-  including pagination (every 10 questions). 
-  This endpoint should return a list of questions, 
-  number of total questions, current category, categories.
-  
-
-  TEST: At this point, when you start the application
-  you should see questions and categories generated,
-  ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
-  '''
   @app.route('/questions')
   def get_questions():
     page = request.args.get('page', 1, type=int)
@@ -61,7 +51,7 @@ def create_app(test_config=None):
       'success': True,
       'questions': serialise_entity_list(questions.items),
       'total_questions': questions.total,
-      'categories': get_serialised_categories(),
+      'categories': get_categories_map(),
       'current_category': None,
     })
 
