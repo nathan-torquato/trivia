@@ -44,7 +44,7 @@ def create_app(test_config=None):
   def get_questions():
     page = request.args.get('page', 1, type=int)
     questions = Question.query.order_by(
-      Question.id.desc()
+      Question.id.asc()
     ).paginate(page, max_per_page=QUESTIONS_PER_PAGE)
     
     return jsonify({
@@ -55,6 +55,20 @@ def create_app(test_config=None):
       'current_category': None,
     })
 
+  @app.route('/questions', methods=['POST'])
+  def create_question():
+    try:
+      props = request.get_json()
+      question = Question(props)
+      question.insert()
+
+      return jsonify({
+        'success': True,
+        'question': question.serialise()
+      })
+    except:
+      abort(422)
+
   @app.route('/questions/<int:id>', methods=['DELETE'])
   def delete_question(id):
     question = Question.query.get_or_404(id)
@@ -64,17 +78,6 @@ def create_app(test_config=None):
       'success': True,
       'id': question.id
     })
-
-  '''
-  @TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
-
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
 
   '''
   @TODO: 

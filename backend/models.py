@@ -32,11 +32,11 @@ class Question(db.Model):
   category = Column(String)
   difficulty = Column(Integer)
 
-  def __init__(self, question, answer, category, difficulty):
-    self.question = question
-    self.answer = answer
-    self.category = category
-    self.difficulty = difficulty
+  def __init__(self, props):
+    self.question = props['question']
+    self.answer = props['answer']
+    self.category = props['category']
+    self.difficulty = props['difficulty']
 
   def insert(self):
     db.session.add(self)
