@@ -9,7 +9,7 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 def serialise_entity_list(entity_list):
-  serialised_list = [entity.format() for entity in entity_list]
+  serialised_list = [entity.serialise() for entity in entity_list]
   return serialised_list
 
 def create_app(test_config=None):
