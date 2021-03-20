@@ -8,6 +8,10 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def serialise_entity_list(entity_list):
+  serialised_list = [entity.format() for entity in entity_list]
+  return serialised_list
+
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
@@ -20,19 +24,22 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests 
-  for all available categories.
-  '''
-
+  @app.route('/categories')
+  def get_categories():
+    categories = Category.query.all()
+    
+    return jsonify({
+      'success': True,
+      'categories': serialise_entity_list(categories),
+    })
 
   '''
   @TODO: 
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
-  number of total questions, current category, categories. 
+  number of total questions, current category, categories.
+  
 
   TEST: At this point, when you start the application
   you should see questions and categories generated,
