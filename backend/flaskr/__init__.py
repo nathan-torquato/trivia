@@ -24,13 +24,17 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
+  def get_serialised_categories():
+    categories = Category.query.all()
+    return serialise_entity_list(categories)
+  
   @app.route('/categories')
   def get_categories():
     categories = Category.query.all()
     
     return jsonify({
       'success': True,
-      'categories': serialise_entity_list(categories),
+      'categories': get_serialised_categories(),
     })
 
   '''
@@ -46,6 +50,20 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  @app.route('/questions')
+  def get_questions():
+    page = request.args.get('page', 1, type=int)
+    questions = Question.query.order_by(
+      Question.id.desc()
+    ).paginate(page, max_per_page=QUESTIONS_PER_PAGE)
+    
+    return jsonify({
+      'success': True,
+      'questions': serialise_entity_list(questions.items),
+      'total_questions': questions.total,
+      'categories': get_serialised_categories(),
+      'current_category': None,
+    })
 
   '''
   @TODO: 
