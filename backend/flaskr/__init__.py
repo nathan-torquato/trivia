@@ -145,13 +145,16 @@ def create_app(test_config=None):
 
   @app.errorhandler(Exception)
   def handle_error(e):
-    code = 500
+    status_code = 500
+    message = str(e)
+
     if isinstance(e, HTTPException):
-      code = e.code
+      status_code = e.code
 
     return jsonify({
       'success': False,
-      'message': str(e)
-    }), code
+      'status_code': status_code,
+      'message': message,
+    }), status_code
   
   return app
