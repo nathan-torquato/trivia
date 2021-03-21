@@ -1,7 +1,8 @@
 import os
 from flask import Flask, request, abort, jsonify
+from werkzeug.exceptions import HTTPException
 from flask_sqlalchemy import SQLAlchemy
-from  sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func
 from flask_cors import CORS
 import random
 
@@ -67,7 +68,7 @@ def create_app(test_config=None):
     category_id = int(body.get('category_id', 0))
 
     if previous_questions == None:
-      abort(400)
+      abort(400, '"previous_questions" is required!')
 
     filters = [Question.id.notin_(previous_questions)]
     if category_id > 0:
@@ -142,12 +143,15 @@ def create_app(test_config=None):
       'id': question.id
     })
 
-  '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
+  @app.errorhandler(Exception)
+  def handle_error(e):
+    code = 500
+    if isinstance(e, HTTPException):
+      code = e.code
+
+    return jsonify({
+      'success': False,
+      'message': str(e)
+    }), code
   
   return app
-
-    
