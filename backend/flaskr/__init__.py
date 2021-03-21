@@ -31,7 +31,7 @@ def create_app(test_config=None):
       category['id']: category['type'] for category in serialised_list
     }
   
-  @app.route('/categories')
+  @app.route('/categories', methods=['GET'])
   def get_categories():
     categories = Category.query.all()
     
@@ -40,14 +40,24 @@ def create_app(test_config=None):
       'categories': get_categories_map(),
     })
 
-  '''
-  @TODO: 
-  Create a GET endpoint to get questions based on category. 
+  @app.route('/categories/<category_id>/questions', methods=['GET'])
+  def get_category_questions(category_id):
+    page = request.args.get('page', 1, type=int)
+    filter_query = Question.category == category_id
+    questions = Question.query.order_by(
+      Question.id.asc()
+    ).filter(
+      filter_query
+    ).paginate(
+      page, max_per_page=QUESTIONS_PER_PAGE
+    )
 
-  TEST: In the "List" tab / main screen, clicking on one of the 
-  categories in the left column will cause only questions of that 
-  category to be shown. 
-  '''
+    return jsonify({
+      'success': True,
+      'questions': serialise_entity_list(questions.items),
+      'total_questions': questions.total,
+      'current_category': category_id,
+    })
 
   '''
   @TODO: 
