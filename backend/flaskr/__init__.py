@@ -40,7 +40,7 @@ def create_app(test_config=None):
       'categories': get_categories_map(),
     })
 
-  @app.route('/questions')
+  @app.route('/questions', methods=['GET'])
   def get_questions():
     page = request.args.get('page', 1, type=int)
     questions = Question.query.order_by(
@@ -52,6 +52,26 @@ def create_app(test_config=None):
       'questions': serialise_entity_list(questions.items),
       'total_questions': questions.total,
       'categories': get_categories_map(),
+      'current_category': None,
+    })
+
+  @app.route('/questions/search', methods=['POST'])
+  def search_questions():
+    search_term = request.get_json()['searchTerm']
+    filter_query = Question.question.ilike("%" + search_term + "%")
+    page = request.args.get('page', 1, type=int)
+    questions = Question.query.order_by(
+      Question.id.asc()
+    ).filter(
+      filter_query
+    ).paginate(
+      page, max_per_page=QUESTIONS_PER_PAGE
+    )
+
+    return jsonify({
+      'success': True,
+      'questions': serialise_entity_list(questions.items),
+      'total_questions': questions.total,
       'current_category': None,
     })
 
@@ -78,17 +98,6 @@ def create_app(test_config=None):
       'success': True,
       'id': question.id
     })
-
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
-  is a substring of the question. 
-
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
-  '''
 
   '''
   @TODO: 
