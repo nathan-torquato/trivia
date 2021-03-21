@@ -63,22 +63,24 @@ def create_app(test_config=None):
   @app.route('/quizzes', methods=['POST'])
   def get_quizz_question():
     body = request.get_json()
-    previous_questions = body['previous_questions']
-    category_id = body['category_id']
+    previous_questions = body.get('previous_questions', None)
+    category_id = int(body.get('category_id', 0))
 
-    if not ('previous_questions' in body):
-      abort(422)
+    if previous_questions == None:
+      abort(400)
 
-    question = Question.query.filter(
-      Question.id.notin_((previous_questions)),
-      Question.category == category_id if category_id else Question.category > 0
-    ).order_by(func.random()).first()
+    filters = [Question.id.notin_(previous_questions)]
+    if category_id > 0:
+      filters.append(Question.category == category_id)
+
+    query = Question.query.filter(*filters)
+    question = query.order_by(func.random()).first()
 
     return jsonify({
       'success': True,
       'question': question.serialise() if question else None,
       'previous_questions': previous_questions,
-      'category_id': category_id if category_id else None,
+      'category_id': category_id,
     })
 
   @app.route('/questions', methods=['GET'])
