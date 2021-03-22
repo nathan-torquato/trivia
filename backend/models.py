@@ -10,14 +10,14 @@ db = SQLAlchemy()
 
 '''
 setup_db(app)
-    binds a flask application and a SQLAlchemy service
+  binds a flask application and a SQLAlchemy service
 '''
 def setup_db(app, database_path=database_path):
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.app = app
-    db.init_app(app)
-    db.create_all()
+  app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+  app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+  db.app = app
+  db.init_app(app)
+  db.create_all()
 
 '''
 Question
@@ -29,7 +29,7 @@ class Question(db.Model):
   id = Column(Integer, primary_key=True)
   question = Column(String, nullable=False)
   answer = Column(String, nullable=False)
-  category = Column(String, nullable=False)
+  category = Column(String, db.ForeignKey('categories.id'), nullable=False)
   difficulty = Column(Integer, nullable=False)
 
   def __init__(self, props):
@@ -67,6 +67,11 @@ class Category(db.Model):
 
   id = Column(Integer, primary_key=True)
   type = Column(String, nullable=False)
+  questions = db.relationship(
+    'Question',
+    backref='categories',
+    lazy=True
+  )
 
   def __init__(self, type):
     self.type = type
@@ -76,3 +81,6 @@ class Category(db.Model):
       'id': self.id,
       'type': self.type
     }
+  
+  def get_serialised_questions(self):
+    return [q.serialise() for q in self.questions]

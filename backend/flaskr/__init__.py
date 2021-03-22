@@ -42,22 +42,15 @@ def create_app(test_config=None):
       'categories': get_categories_map(),
     })
 
-  @app.route('/categories/<category_id>/questions', methods=['GET'])
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_category_questions(category_id):
-    page = request.args.get('page', 1, type=int)
-    filter_query = Question.category == category_id
-    questions = Question.query.order_by(
-      Question.id.asc()
-    ).filter(
-      filter_query
-    ).paginate(
-      page, max_per_page=QUESTIONS_PER_PAGE
-    )
+    category = Category.query.get_or_404(category_id)
+    questions = category.get_serialised_questions()
 
     return jsonify({
       'success': True,
-      'questions': serialise_entity_list(questions.items),
-      'total_questions': questions.total,
+      'questions': questions,
+      'total_questions': len(questions),
       'current_category': category_id,
     })
 
