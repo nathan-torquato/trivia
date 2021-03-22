@@ -104,7 +104,40 @@ class TriviaTestCase(unittest.TestCase):
 		data = json.loads(res.data)
 
 		self.assertEqual(res.status_code, 404)
-		self.assertEqual(data['success'], False)	
+		self.assertEqual(data['success'], False)
+	
+	def test_201_create_question(self):
+		payload = {
+			'question': 'Question?',
+			'answer': 'answer',
+			'category': 1,
+			'difficulty': 1,
+		}
+
+		res = self.client().post('/questions', json=payload)
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 201)
+		self.assertEqual(data['success'], True)
+		self.assertTrue(data['question'])
+		self.assertTrue(data['question']['id'])
+		self.assertEqual(data['question']['question'], payload['question'])
+		self.assertEqual(data['question']['answer'], payload['answer'])
+		self.assertEqual(data['question']['category'], payload['category'])
+		self.assertEqual(data['question']['difficulty'], payload['difficulty'])
+	
+	def test_422_create_question_if_invalid_input_is_provided(self):
+		payload = {
+			'answer': 'answer',
+			'category': 1,
+			'difficulty': 1,
+		}
+
+		res = self.client().post('/questions', json=payload)
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 422)
+		self.assertEqual(data['success'], False)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

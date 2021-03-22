@@ -102,7 +102,7 @@ def create_app(test_config=None):
       return jsonify({
         'success': True,
         'question': question.serialise()
-      })
+      }), 201
     except:
       abort(422)
 
