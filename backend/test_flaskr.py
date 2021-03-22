@@ -54,6 +54,37 @@ class TriviaTestCase(unittest.TestCase):
 
 		self.assertEqual(res.status_code, 404)
 		self.assertEqual(data['success'], False)
+	
+	def test_200_get_quizz_question(self):
+		payload = {
+			'previous_questions': [2],
+			'category_id': 1
+		}
+
+		res = self.client().post('/quizzes', json=payload)
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 200)
+		self.assertEqual(data['success'], True)
+		self.assertEqual(data['previous_questions'], payload['previous_questions'])
+		self.assertEqual(data['category_id'], payload['category_id'])
+		self.assertTrue(data['question'])
+		self.assertTrue(data['question']['id'])
+		self.assertTrue(data['question']['question'])
+		self.assertTrue(data['question']['answer'])
+		self.assertTrue(data['question']['category'])
+		self.assertTrue(data['question']['difficulty'])
+	
+	def test_400_get_quizz_question_if_previous_questions_not_provided(self):
+		payload = {
+			'category_id': 1
+		}
+
+		res = self.client().post('/quizzes', json=payload)
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 400)
+		self.assertEqual(data['success'], False)
 
 
 # Make the tests conveniently executable
