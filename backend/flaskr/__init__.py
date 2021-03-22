@@ -108,7 +108,11 @@ def create_app(test_config=None):
 
   @app.route('/questions/search', methods=['POST'])
   def search_questions():
-    search_term = request.get_json()['searchTerm']
+    body = request.get_json()
+    search_term = body.get('searchTerm', '')
+    if search_term.strip() == '':
+      abort(400, '"searchTerm" is required')
+
     filter_query = Question.question.ilike("%" + search_term + "%")
     page = request.args.get('page', 1, type=int)
     questions = Question.query.order_by(
