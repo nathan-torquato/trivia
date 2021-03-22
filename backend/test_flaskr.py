@@ -162,6 +162,32 @@ class TriviaTestCase(unittest.TestCase):
 
 		self.assertEqual(res.status_code, 400)
 		self.assertEqual(data['success'], False)
+	
+	def test_200_delete_question(self):
+		payload = {
+			'question': 'Question?',
+			'answer': 'answer',
+			'category': 1,
+			'difficulty': 1,
+		}
+
+		new_question_res = self.client().post('/questions', json=payload)
+		new_question_data = json.loads(new_question_res.data)
+		new_question_id = new_question_data['question']['id']
+
+		res = self.client().delete(f'/questions/{new_question_id}')
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 200)
+		self.assertEqual(data['success'], True)
+		self.assertEqual(data['id'], new_question_id)
+	
+	def test_404_delete_question_if_non_existing_question(self):
+		res = self.client().delete('/questions/100')
+		data = json.loads(res.data)
+
+		self.assertEqual(res.status_code, 404)
+		self.assertEqual(data['success'], False)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
