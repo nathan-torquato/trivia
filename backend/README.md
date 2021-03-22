@@ -66,29 +66,161 @@ One note before you delve into your tasks: for each endpoint you are expected to
 8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
-REVIEW_COMMENT
+## API doc
+
+> Every response has a "success" field with a boolean value (not represented in the sample responses bellow for the sake of brevity).
+
+> Error responses will include the "status_code" in the body as well.
+
+> Unless otherwise indicated, listed *Request Query Params* are required
+
+### Routes
+
+> GET `/categories`
+- *Description:*: Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- *Response:* 
+```json
+{
+  "categories": {
+    "1" : "Science",
+    "2" : "Art",
+    "3" : "Geography",
+    "4" : "History",
+    "5" : "Entertainment",
+    "6" : "Sports"
+  }
+}
 ```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
-
-GET '/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
-
+> GET `/categories/<int:category_id>/questions`
+- *Description:*: Fetches the questions for the specified category if it exists, throws 404 if it doesn't
+- *Response:*
+```
+{
+  "current_category": 1,
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+    ...
+  ],
+  "total_questions": 3
+}
 ```
 
+> POST `/quizzes`
+- *Description:* Fetches not previously asked questions randomizing either all questions or within a specific category.
+- *Request.body:*
+```
+{
+  "previous_questions": int[],
+  "category_id": int
+}
+```
+- *Response:*
+```
+{
+  "question": {
+    "answer": "The Liver", 
+    "category": 1, 
+    "difficulty": 4, 
+    "id": 20, 
+    "question": "What is the heaviest organ in the human body?"
+  },
+  "previous_questions": int[], # same as requested
+  "category_id": int, # same as requested
+}
+```
+
+> GET `/questions?page=<page_number>`
+
+- *Description:* Fetches a paginated list of questions
+- *Request Params:* page:int (value 1 is used as default)
+- *Response:*  
+```
+{
+  "categories": {
+    "1": "Science", 
+    "2": "Art", 
+    ...
+  }, 
+  "current_category": null, 
+  "questions": [
+    {
+      "answer": "name", 
+      "category": 1, 
+      "difficulty": 5, 
+      "id": 5, 
+      "question": "What's your name"
+    },
+    ... 
+  ], 
+  "total_questions": 19
+}
+```
+
+> POST `/questions`
+- *Description:* Creates a new question
+- *Request.body:*
+```
+{
+  question:string,
+  answer:string,
+  difficulty:int,
+  category:string
+}
+```
+- *Response:* 
+```
+{
+  "question": {
+    "answer": "The Liver",
+    "category": 1,
+    "difficulty": 4,
+    "id": 20,
+    "question": "What is the heaviest organ in the human body?"
+  },
+}
+```
+
+> POST `/questions/search`
+*Description:* Fetches all questions matching the search term (case-insensitive)
+- *Request.body:*
+```
+{
+  searchTerm:string
+}
+```
+- *Response:*
+```
+{
+  "current_category": null, 
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+    ...
+  ], 
+  "total_questions": 10
+}
+```
+
+> DELETE `/questions/<question_id>`
+*Description:* Deletes an existing question
+- *Response:* 
+```
+{
+  "id": "28"
+}
+```
 
 ## Testing
 To run the tests, run
